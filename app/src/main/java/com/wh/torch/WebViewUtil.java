@@ -1,4 +1,4 @@
-package com.dragon.splashactivity;
+package com.wh.torch;
 
 import android.webkit.WebSettings;
 import android.webkit.WebView;

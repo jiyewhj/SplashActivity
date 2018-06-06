@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dragon.splashactivity">
+    package="com.wh.torch">
 
     <application
         android:allowBackup="true"
@@ -9,7 +9,7 @@
         android:windowSoftInputMode="adjustResize"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SplashActivity">
+        <activity android:name="com.wh.torch.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"
                     android:fitsSystemWindows="true"
@@ -19,8 +19,26 @@
             </intent-filter>
         </activity>
 <!--注册splash acvitity-->
-        <activity android:name=".Main">
+        <activity android:name="com.wh.torch.Main">
         </activity>
+        <!-- 这里直接复制就可以，需要注意的是authorities，以你的包名加上fileprovider，因为他需要唯一 -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.wh.torch.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
     </application>
+
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!--<uses-permission android:name="android.permission.CALL_PHONE"/>-->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>在SDCard中创建与删除文件权限 -->
 </manifest>

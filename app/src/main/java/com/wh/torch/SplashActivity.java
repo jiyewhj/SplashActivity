@@ -1,10 +1,9 @@
-package com.dragon.splashactivity;
+package com.wh.torch;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -23,7 +22,7 @@ public class SplashActivity extends Activity {
 //        NO Title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_splash);
+        setContentView(com.wh.torch.R.layout.activity_splash);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         handler.postDelayed(new Runnable() {
             @Override
@@ -31,7 +30,7 @@ public class SplashActivity extends Activity {
                 Intent intent = new Intent(SplashActivity.this, Main.class);
                 startActivity(intent);
             }
-        }, 2000);
+        }, 1);
 
 //        finish();
     }
