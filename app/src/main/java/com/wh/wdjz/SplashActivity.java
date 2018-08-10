@@ -1,4 +1,4 @@
-package com.wh.torch;
+package com.wh.wdjz;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -22,7 +22,7 @@ public class SplashActivity extends Activity {
 //        NO Title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(com.wh.torch.R.layout.activity_splash);
+        setContentView(com.wh.wdjz.R.layout.activity_splash);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         handler.postDelayed(new Runnable() {
             @Override
@@ -32,7 +32,7 @@ public class SplashActivity extends Activity {
             }
         }, 1);
 
-//        finish();
+       finish();
     }
 }
 

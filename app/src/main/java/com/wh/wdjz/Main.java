@@ -1,5 +1,6 @@
-package com.wh.torch;
+package com.wh.wdjz;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ClipData;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -15,14 +17,17 @@ import android.os.Message;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
+import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
-import android.webkit.WebBackForwardList;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -36,14 +41,14 @@ import java.util.List;
 public class Main extends Activity {
     private WebView webview;
     private KeyboardChangeListener keyboardChangeListener;
-    private String recgPic = "http://ham.whradio.gov.cn/WrAI/verityIDPic.html";
+   // private String recgPic = "http://192.168.100.43:8080/wdzzz/mobile/login.html";
+    private String recgPic = "http://120.192.79.26:8081/wdzzz/mobile/login.html";
     public final static int FILECHOOSER_RESULTCODE = 1;
     public final static int FILECHOOSER_RESULTCODE_FOR_ANDROID_5 = 2;
     // 定义一个变量，来标识是否退出
     private static boolean isExit = false;
 
     Handler mHandler = new Handler() {
-
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -62,10 +67,9 @@ public class Main extends Activity {
 
     private void initTestWebView() {
 
-//        if(!getResources().getString(R.string.app_version).equals("102")){
-//            Toast.makeText(getApplicationContext(), "有新版哦，请进入重要信息栏目的版本升级文章中升级",
-//                    Toast.LENGTH_LONG).show();
-//        }
+        requestPermission();//动态获取权限
+
+
         WebSettings settings = webview.getSettings();
 
         settings.setJavaScriptEnabled(true);//设置WebView属性，能够执行Javascript脚本
@@ -89,7 +93,7 @@ public class Main extends Activity {
         webview.setDownloadListener(new MyWebViewDownLoadListener());
         //webview.setWebViewClient(new WebViewClient());
         //加载需要显示的网页
-        webview.loadUrl("http://ham.whradio.gov.cn/WrAI/verityIDPic.html");
+        webview.loadUrl("http://120.192.79.26:8081/wdzzz/mobile/login.html");
 
         webview.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -126,64 +130,44 @@ public class Main extends Activity {
         public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
             return super.onJsAlert(view, url, message, result);
         }
-//            @Override
-//            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-//                mUploadCallbackAboveL = filePathCallback;
-//                take();
-//                return true;
-//            }
-//
-//            //<3.0
-//            public void openFileChooser(ValueCallback<Uri> uploadMsg) {
-//                mUploadMessage = uploadMsg;
-//                take();
-//            }
-//            //>3.0+
-//            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType) {
-//                mUploadMessage = uploadMsg;
-//                take();
-//            }
-//            //>4.1.1
-//            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
-//                mUploadMessage = uploadMsg;
-//                take();
-//            }
-
-//            //扩展浏览器上传文件
-//        //3.0++版本
-//        public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType) {
-//            openFileChooserImpl(uploadMsg);
-//        }
-//
-//        //3.0--版本
-//        public void openFileChooser(ValueCallback<Uri> uploadMsg) {
-//            openFileChooserImpl(uploadMsg);
-//        }
-//
-//       public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
-//            openFileChooserImpl(uploadMsg);
-//        }
-//
-//        @Override
-//        public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-//            onenFileChooseImpleForAndroid(filePathCallback);
-//            return true;
-//        }
         });
 
         webview.setWebViewClient(new WebViewClient() {
+//            @Override
+//            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+//            view.loadUrl(url);
+//            return true;
+//        }
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            view.loadUrl(url);
-            return true;
-        }
+            public boolean shouldOverrideUrlLoading(WebView view, String url)
+            {
+                if(url == null) return false;
+
+                try {
+                    if (url.startsWith("http:") || url.startsWith("https:"))
+                    {
+                        Log.e("phone1",url);
+                        view.loadUrl(url);
+                        return true;
+                    }
+                    else
+                    {
+                        Log.e("phone2",url.substring(url.indexOf("1")));
+                        CallPhone(url.substring(url.indexOf("1")));
+                        return true;
+                    }
+                } catch (Exception e) { //防止crash (如果手机上没有安装处理某个scheme开头的url的APP, 会导致crash)
+                    return false;
+                }
+            }
+            @Override
+            public void onReceivedSslError(WebView view,
+                                           SslErrorHandler handler, SslError error) {
+                handler.proceed();
+            }
         });
 
     }
-
-
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -330,15 +314,8 @@ public class Main extends Activity {
 //    }
 //    }
 
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_BACK) {
-//            exit();
-//            return false;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
 
+    @JavascriptInterface
     private void exit() {
         if (!isExit) {
             isExit = true;
@@ -350,31 +327,24 @@ public class Main extends Activity {
             System.exit(0);
         }
     }
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_BACK && webview.canGoBack()) {
-//            webview.goBack();
-//            return true;
-//        }
-//
-//        return super.onKeyDown(keyCode, event);
-//    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK){
             //Toast.makeText(this, webview.getUrl(), Toast.LENGTH_SHORT).show();
-            if(webview.getUrl()=="http://ham.whradio.gov.cn/WrAI/verityIDPic.html"){
+            if(webview.getUrl().contains("mobile/mobileIndex.html")
+                    ||webview.getUrl().contains("mobile/login.html")
+                    ||webview.getUrl().contains("mobile/logout.html")){
                 exit();
                 return false;
             }else{
                 if (webview.canGoBack()) {
                     //获取历史列表
-                    WebBackForwardList mWebBackForwardList = webview.copyBackForwardList();
+//                    WebBackForwardList mWebBackForwardList = webview.copyBackForwardList();
                     //判断当前历史列表是否最顶端,其实canGoBack已经判断过
-                    if (mWebBackForwardList.getCurrentIndex() > 0) {
+//                    if (mWebBackForwardList.getCurrentIndex() > 0) {
                         webview.goBack();
                         return true;
-                    }
+//                    }
                 }else{
                     exit();
                     return false;
@@ -422,6 +392,117 @@ public class Main extends Activity {
             webview.destroy();
             webview = null;
         }
+    }
+
+
+    private void CallPhone(String phoneNum) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_CALL);
+        //url:统一资源定位符
+        //uri:统一资源标示符（更广）
+        intent.setData(Uri.parse("tel:" +phoneNum));
+        //开启系统拨号器
+        startActivity(intent);
+    }
+
+
+    /**
+     * 以下代码用于动态获取权限
+     */
+    private PermissionListener mlistener;
+
+    /**
+     * 权限申请
+     * @param permissions 待申请的权限集合
+     * @param listener  申请结果监听事件
+     */
+    protected void requestRunTimePermission(String[] permissions,PermissionListener listener){
+        this.mlistener = listener;
+
+        //用于存放为授权的权限
+        List<String> permissionList = new ArrayList<>();
+        //遍历传递过来的权限集合
+        for (String permission : permissions) {
+            //判断是否已经授权
+            if (ContextCompat.checkSelfPermission(this,permission) != PackageManager.PERMISSION_GRANTED){
+                //未授权，则加入待授权的权限集合中
+                permissionList.add(permission);
+            }
+        }
+
+        //判断集合
+        if (!permissionList.isEmpty()){  //如果集合不为空，则需要去授权
+            ActivityCompat.requestPermissions(this,permissionList.toArray(new String[permissionList.size()]),1);
+        }else{  //为空，则已经全部授权
+            listener.onGranted();
+        }
+    }
+
+
+    /**
+     * 权限申请结果
+     * @param requestCode  请求码
+     * @param permissions  所有的权限集合
+     * @param grantResults 授权结果集合
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0){
+                    //被用户拒绝的权限集合
+                    List<String> deniedPermissions = new ArrayList<>();
+                    //用户通过的权限集合
+                    List<String> grantedPermissions = new ArrayList<>();
+                    for (int i = 0; i < grantResults.length; i++) {
+                        //获取授权结果，这是一个int类型的值
+                        int grantResult = grantResults[i];
+
+                        if (grantResult != PackageManager.PERMISSION_GRANTED){ //用户拒绝授权的权限
+                            String permission = permissions[i];
+                            deniedPermissions.add(permission);
+                        }else{  //用户同意的权限
+                            String permission = permissions[i];
+                            grantedPermissions.add(permission);
+                        }
+                    }
+
+                    if (deniedPermissions.isEmpty()){  //用户拒绝权限为空
+                        mlistener.onGranted();
+                    }else {  //不为空
+                        //回调授权成功的接口
+                        mlistener.onDenied(deniedPermissions);
+                        //回调授权失败的接口
+                        mlistener.onGranted(grantedPermissions);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void requestPermission(){
+        requestRunTimePermission(new String[]{Manifest.permission.CALL_PHONE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.SYSTEM_ALERT_WINDOW}
+                , new PermissionListener() {
+                    @Override
+                    public void onGranted() {  //所有权限授权成功
+
+                    }
+
+                    @Override
+                    public void onGranted(List<String> grantedPermission) { //授权失败权限集合
+
+                    }
+
+                    @Override
+                    public void onDenied(List<String> deniedPermission) { //授权成功权限集合
+
+                    }
+                });
     }
 
 }

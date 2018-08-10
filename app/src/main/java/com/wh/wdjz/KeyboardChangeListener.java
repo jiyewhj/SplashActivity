@@ -1,4 +1,4 @@
-package com.wh.torch;
+package com.wh.wdjz;
 
 import android.app.Activity;
 import android.graphics.Rect;

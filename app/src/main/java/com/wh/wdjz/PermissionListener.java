@@ -1,0 +1,19 @@
+/**
+ * 动态获取权限接口
+ */
+package com.wh.wdjz;
+
+import java.util.List;
+
+public interface PermissionListener {
+
+    //授权成功
+    void onGranted();
+
+    //授权部分
+    void onGranted(List<String> grantedPermission);
+
+    //拒绝授权
+    void onDenied(List<String> deniedPermission);
+
+}
